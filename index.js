@@ -144,8 +144,6 @@ app.post('/belepes', async (req, res) => {
 })
 
 
-
-
 app.post('/kijelentkezes', auth, async (req, res) => {
     res.clearCookie(COOKIE_NAME, { path: '/' });
     res.status(200).json({ message: "Sikeres kijelentkezés |_(*)__(*)_|" })
@@ -184,15 +182,6 @@ app.put('/email', auth, async (req,res)=>{
     }
 } )
 
-
-
-
-
-
-
-
-
-
 app.put('/felhasznalonev', auth, async (req,res)=>{
     const {ujFelhasznalonev} = req.body;
     if (!ujFelhasznalonev) {
@@ -217,6 +206,39 @@ app.put('/felhasznalonev', auth, async (req,res)=>{
 
 
 
+
+app.put('/jelszo', async(req,res)=>{
+    const {jelenelegiJelszo, ujJelszo} = req.body;
+    if(!jelenelegiJelszo || ujJelszo){
+        return res.status(400).json({message: "Hianyzo Adatok"})
+    }
+    try {
+        const sql = 'SELECT * FROM felhasznalok WHERE id = ?'
+        const [rows] = await db.query(sql, [req.user.id]);
+        const user = rows[0]
+        const hashJelszo = user.jelszo
+            user = rows[0];
+            hashJelszo = user.jelszo
+
+        const ok = bcrypt.compare(jelszo, hashJelszo)
+        if (!ok) {
+            return res.status(401).json({message: "Helytelen jelszo"})
+        }
+
+        const hashUjJelszo = await bcrypt.hash(ujJelszo, 10);
+        
+        const sql2 = 'UPDATE felhasznalok SET jelszo = ? WHERE id=?' 
+        await db.query(sql2,[hashUjJelszo,req.user.id])
+        return res.status(200).json({message: 'Sikeresen megváltozott a jelszavad'})
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: "Szerverhiba"})
+    } 
+})
+
+
+
 app.delete('/fiokom',auth, async (req,res)=>{
     try {
         const sql = 'DELETE FROM felhasznalok WHERE id = ?'
@@ -227,11 +249,7 @@ app.delete('/fiokom',auth, async (req,res)=>{
         console.log(error)
         res.status(500).json({message: 'Szerverhiba'})
     }
-
 })
-
-
-
 
 
 
