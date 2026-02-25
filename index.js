@@ -38,7 +38,7 @@ const app = express();
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-    origin: "*",
+    origin: 'http://localhost:5173',
     credentials: true
 }))
 
@@ -62,7 +62,7 @@ function auth(req, res, next) {
 // Végpontok //
 app.post('/regisztracio', async (req, res) => {
     const { email, felhasznalonev, jelszo, admin } = req.body;
-    if (!email || !felhasznalonev || !jelszo || !admin) {
+    if (!email || !felhasznalonev || !jelszo || !(admin===0 || admin===1)) {
         return res.status(400).json({ message: "Hiányzó adatok" })
     }
     try {
@@ -233,7 +233,7 @@ app.put('/jelszo', async(req,res)=>{
 
     } catch (error) {
         console.log(error);
-        res.status(500).json({message: "Szerverhiba"})
+        res.status(500).json({message: "SzerverhiPPba"})
     } 
 })
 
@@ -250,12 +250,6 @@ app.delete('/fiokom',auth, async (req,res)=>{
         res.status(500).json({message: 'Szerverhiba'})
     }
 })
-
-
-
-
-
-
 
 // Szero inditasa //
 app.listen(PORT, HOST, () => {
